@@ -5,9 +5,8 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 
-public class Gate_Controller : MonoBehaviour
+public class Gate_Controller : Base_Mgr<Gate_Controller>
 {
-    public static Gate_Controller instance { private set; get; }
     public Slider Gate_Slider;
     public bool Is_Coding_Gate;
     public event Action On_Gate_Start;
@@ -18,17 +17,9 @@ public class Gate_Controller : MonoBehaviour
     public bool Final;
     public bool Finish;
     public CapsuleCollider2D cp;
-    public void Awake()
+    protected override void Awake()
     {
-        if (!instance)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-
-        }
+        base.Awake();
         cp = GetComponent<CapsuleCollider2D>();
         Gate_Slider.value = 0;
         Gate_Slider.maxValue = 1;
@@ -37,12 +28,10 @@ public class Gate_Controller : MonoBehaviour
     public void OnEnable()
     {
         On_Gate_Start += Start_Coding;
-        //On_Gate_Stop += Stop_Coding;
     }
     public void OnDisable()
     {
         On_Gate_Start -= Start_Coding;
-        //On_Gate_Stop -= Stop_Coding;
     }
     public void Open()
     {
@@ -52,10 +41,6 @@ public class Gate_Controller : MonoBehaviour
         }
         On_Gate_Start?.Invoke();
     }
-    //public void Stop()
-    //{
-    //    On_Gate_Stop?.Invoke();
-    //}
     public void Start_Coding()
     {
         if (Is_Coding_Gate)
@@ -66,12 +51,6 @@ public class Gate_Controller : MonoBehaviour
         Is_Coding_Gate = true;
         StartCoroutine(Decoding());
     }
-    //public void Stop_Coding()
-    //{
-    //    Gate_Slider.gameObject.SetActive(false);
-    //    Is_Coding_Gate = false;
-    //    StopCoroutine(Decoding());
-    //}
     public IEnumerator Decoding()
     {
         while (Is_Coding_Gate)

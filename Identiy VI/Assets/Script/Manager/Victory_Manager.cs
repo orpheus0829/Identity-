@@ -4,9 +4,8 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class Victory_Manager : MonoBehaviour
+public class Victory_Manager : Base_Mgr<Victory_Manager>
 {
-    public static Victory_Manager instance { private set; get; }
     public event Action On_Escape;
     public event Action On_Dead;
     public int Escape_Member;
@@ -15,29 +14,15 @@ public class Victory_Manager : MonoBehaviour
     public TextMeshProUGUI Result_Text;
     [Range(1, 5)] public int Target_Escape_Member;
     [Range(0, 5)] public int Target_Dead_Member;
-    public void Awake()
+    protected override void Awake()
     {
-        if (!instance)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-
-        }
+        base.Awake();
         Result_Panel.gameObject.SetActive(false);
         Escape_Member = 0;
         Dead_Member = 0;
     }
     public void Start()
     {
-        //Target_Escape_Member = Mathf.Max(Game_Settings.instance.AI_Player_Num / 2, 1);
-        //Target_Dead_Member = Game_Settings.instance.AI_Player_Num * 3 / 4;
-        //if (Game_Settings.instance.AI_Player_Num <= 1)
-        //{
-        //    Target_Dead_Member = 1;
-        //}
         int p = FindObjectsOfType<Player>().Length;
         int ai = FindObjectsOfType<Player_AI>().Length;
         int total = p + ai;

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Effect_Manager : MonoBehaviour
+public class Effect_Manager : Base_Mgr<Effect_Manager>
 {
     [System.Serializable]
     public class Human_And_Effect
@@ -11,23 +11,15 @@ public class Effect_Manager : MonoBehaviour
         public GameObject Foot;
         //public GameObject Hurt;
     }
-    public static Effect_Manager instance { private set; get; }
     [Header("Ãÿ–ß")]
     public GameObject Human_Hurt;
     public GameObject Human_FootPrint;
     public LayerMask Human_Layer;
     [Header("Ω≈”°")]
     public List<Human_And_Effect> Human_lst = new List<Human_And_Effect>();
-    private void Awake()
+    protected override void Awake()
     {
-        if (!instance)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        base.Awake();
     }
     private void Update()
     {

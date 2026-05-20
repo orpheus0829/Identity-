@@ -2,9 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Sound_Manager : MonoBehaviour
+public class Sound_Manager : Base_Mgr<Sound_Manager>
 {
-    public static Sound_Manager instance { private set; get; }
     public AudioSource Crossing_Sound;
     [Header("人类音效")]
     public AudioSource Hurt_Sound;
@@ -12,26 +11,9 @@ public class Sound_Manager : MonoBehaviour
     [Header("屠夫音效")]
     public AudioSource Attack_Sound;
     public AudioSource Breaking_Sound;
-    //[Header("引用")]
-    //public AudioSource sfx_foot;
-    //public AudioSource sfx_coding;
-    //public AudioSource sfx_hurt;
-    //public AudioSource sfx_dash;
-    //public AudioSource sfx_attack;
-    //public AudioSource sfx_breaking;
-    //public AudioSource sfx_crossing;
-
-    public void Awake()
+    protected override void Awake()
     {
-        if (!instance)
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        base.Awake();
     }
     public void Update()
     {

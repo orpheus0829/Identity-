@@ -2,20 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Init_Manager : MonoBehaviour
+public class Init_Manager : Base_Mgr<Init_Manager>
 {
-    public static Init_Manager instance { private set; get; }
     public List<GameObject> targets;
-    public void Awake()
+    protected override void Awake()
     {
-        if (!instance)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        base.Awake();
     }
     public void Start()
     {

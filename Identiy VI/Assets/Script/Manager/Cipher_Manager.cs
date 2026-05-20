@@ -3,24 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class Cipher_Manager : MonoBehaviour
+public class Cipher_Manager : Base_Mgr<Cipher_Manager>
 {
-    public static Cipher_Manager instance { private set; get; }
     public int All_Cipher;
     public int Cipher_Count;
     public int max;
     public LayerMask cipher;
-    public void Awake()
+    protected override void Awake()
     {
-        if (!instance)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-
-        }
+        base.Awake();
         Cipher_Count = 0;
     }
     public void Update()

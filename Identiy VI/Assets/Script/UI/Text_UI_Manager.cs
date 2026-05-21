@@ -4,25 +4,16 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class Text_UI_Manager : MonoBehaviour
+public class Text_UI_Manager : Base_Mgr<Text_UI_Manager>
 {
-    public static Text_UI_Manager instance { private set; get; }
     public TextMeshProUGUI Cipher;
     public TextMeshProUGUI Gate;
     public TextMeshProUGUI Escape_Member_Target;
     public TextMeshProUGUI Dead_Member_Target;
     public int remaining_cipher;
-    public void Awake()
+    protected override void Awake()
     {
-        if (!instance)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-
-        }
+        base.Awake();
     }
     public void Update()
     {

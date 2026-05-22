@@ -32,11 +32,18 @@ public class Human_Born_State : Istate
 
     public void OnFixedUpdate()
     {
-        
+        if (rp_pl != null && rp_pl.pv != null && !rp_pl.pv.IsMine)
+        {
+            return;
+        }
     }
 
     public void OnUpdate()
     {
+        if (rp_pl != null && rp_pl.pv != null && !rp_pl.pv.IsMine)
+        {
+            return;
+        }
         if (ap_pl)
         {
             if (!ap_pl.IsDown && ap_pl.Player_Alive)

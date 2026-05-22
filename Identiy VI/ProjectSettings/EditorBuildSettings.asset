@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/RoomScene.unity
     guid: 4fac9cff09f808246a7f929da7495642
+  - enabled: 1
+    path: Assets/Scenes/Multi_Map.unity
+    guid: f401aa3adfd5e394a9a8f5d563aadfcf
   m_configObjects: {}

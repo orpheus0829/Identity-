@@ -100,7 +100,7 @@ public class RoomWaitManager : MonoBehaviourPunCallbacks
         PhotonNetwork.CurrentRoom.IsOpen = false;
         PhotonNetwork.CurrentRoom.IsVisible = false;
         // 同步跳转游戏场景
-        PhotonNetwork.LoadLevel("“The Red Church”");
+        PhotonNetwork.LoadLevel("Multi_Map");
     }
 
     // 退出房间返回大厅

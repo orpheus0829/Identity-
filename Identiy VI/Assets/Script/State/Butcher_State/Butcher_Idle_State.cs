@@ -31,11 +31,15 @@ public class Butcher_Idle_State : Istate
 
     public void OnExit()
     {
-        
+
     }
 
     public void OnFixedUpdate()
     {
+        if (rb_bt != null && rb_bt.pv != null && !rb_bt.pv.IsMine)
+        {
+            return;
+        }
         if (ab_bt)
         {
             if (ab_bt.Target_Human == null)
@@ -56,6 +60,10 @@ public class Butcher_Idle_State : Istate
 
     public void OnUpdate()
     {
+        if (rb_bt != null && rb_bt.pv != null && !rb_bt.pv.IsMine)
+        {
+            return;
+        }
         if (ab_bt)
         {
             if (ab_bt.pathPointList != null && ab_bt.currentIndex < ab_bt.pathPointList.Count)

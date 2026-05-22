@@ -27,6 +27,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public List<RoomInfo> roomCache = new List<RoomInfo>();
     public List<GameObject> roomItemPool = new List<GameObject>();
 
+    public void Awake()
+    {
+        Loading_Image.SetActive(true);
+    }
     public void Start()
     {
         // 初始化默认名称
@@ -45,6 +49,13 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinLobby();
         Loading_Image.SetActive(false);
         Debug.Log("连接到大厅服务器");
+    }
+
+    public override void OnDisconnected(DisconnectCause cause)
+    {
+        Loading_Image.SetActive(false);
+        Back_To_Hall();
+        Debug.LogWarning("断开连接: " + cause);
     }
 
     // 实时同步玩家昵称
@@ -115,6 +126,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             });
             roomItemPool.Add(item);
         }
+    }
+
+    public override void OnJoinedLobby()
+    {
+        Loading_Image.SetActive(false);
     }
 
     // 成功进入房间，跳转房间等待场景

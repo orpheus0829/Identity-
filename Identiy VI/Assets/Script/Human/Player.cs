@@ -9,7 +9,8 @@ using DG.Tweening;
 using System.Linq;
 using UnityEngine.SceneManagement;
 using Cinemachine;
-public class Player :  MonoBehaviour, Istate_Human
+using Photon.Pun;
+public class Player : MonoBehaviourPunCallbacks, Istate_Human
 {
     public HumanData human_data;
     [Header("移动")]
@@ -57,6 +58,8 @@ public class Player :  MonoBehaviour, Istate_Human
     public bool Is_Dashing;
     public float Dash_Duration;
     public float Dash_CD;
+    [Header("PUN2")]
+    public PhotonView pv;
     [Header("引用")]
     public LayerMask Butcher_Layer;
     public Slider Saving_Slider;
@@ -86,10 +89,21 @@ public class Player :  MonoBehaviour, Istate_Human
         sr = GetComponent<SpriteRenderer>();
         capsuleCollider2D = GetComponent<CapsuleCollider2D>();
         interact_List = GetComponentInChildren<Interact_List>();
+        pv = GetComponent<PhotonView>();
         playerInput.EnabaleHumanInput();
 
-        After_Die = GameObject.FindGameObjectWithTag("After_Die");
-        After_Die.SetActive(false);
+        if (pv != null && !pv.IsMine)
+        {
+
+        }
+        else
+        {
+            After_Die = GameObject.FindGameObjectWithTag("After_Die");
+            if (After_Die != null)
+            {
+                After_Die.SetActive(false);
+            }
+        }
 
         act.Enable();
         name = human_data.top_name;
@@ -154,7 +168,10 @@ public class Player :  MonoBehaviour, Istate_Human
     }
     public void Update()
     {
-        Current_State.OnUpdate();
+        if (Current_State != null)
+        {
+            Current_State.OnUpdate();
+        }
         CurrentHp = CurrentHp > MaxHp ? MaxHp : CurrentHp;
         Player_HUD_Manager.instance.Update_Player_HP(this.gameObject, CurrentHp, MaxHp);
         Dash_Cooldown = (Dash_Cooldown > 0) ? Dash_Cooldown - Time.deltaTime : 0;
@@ -190,43 +207,92 @@ public class Player :  MonoBehaviour, Istate_Human
     }
     public void FixedUpdate()
     {
-        Current_State.OnFixedUpdate();
+        bool isLocalControl = !PhotonNetwork.IsConnected || (pv != null && pv.IsMine);
+        if (isLocalControl && Current_State != null)
+        {
+            Current_State.OnFixedUpdate();
+        }
         rb.mass = CanControl ? 1 : 99999;
         Last_Way = inputMove.normalized;
     }
+    #region SpriteRenderer同步
+    public void SetFlipX(bool flip)
+    {
+        if (pv.IsMine)
+        {
+            sr.flipX = flip;
+            pv.RPC(nameof(RPC_SetFlipX), RpcTarget.Others, flip);
+        }
+    }
+    [PunRPC]
+    void RPC_SetFlipX(bool flip)
+    {
+        sr.flipX = flip;
+    }
+    public void SetSpriteColor(Color color)
+    {
+        if (pv.IsMine)
+        {
+            sr.color = color;
+            pv.RPC(nameof(RPC_SetSpriteColor), RpcTarget.All, color.r, color.g, color.b, color.a);
+        }
+        else
+        {
+            return;
+        }
+    }
+    [PunRPC]
+    void RPC_SetSpriteColor(float r, float g, float b, float a)
+    {
+        sr.color = new Color(r, g, b, a);
+    }
+    public void SetDeathAlpha(float alphaValue)
+    {
+        if (!pv.IsMine) return;
+
+        Color c = sr.color;
+        c.a = alphaValue;
+        sr.color = c;
+
+        pv.RPC(nameof(RPC_SetAlpha), RpcTarget.All, alphaValue);
+    }
+    [PunRPC]
+    public void RPC_SetAlpha(float alpha)
+    {
+        Color c = sr.color;
+        c.a = alpha;
+        sr.color = c;
+    }
+    #endregion
     #region 移动
     public void Move()
     {
+        if (PhotonNetwork.IsConnected && pv != null && !pv.IsMine)
+        {
+            return;
+        }
         if (CanControl && !Is_Dashing)
         {
             Cursor.visible = false;
-            //if (gate && !Player_Coding)
-            //{
-            //    gate.Stop();
-            //    gate = null;
-            //}
-            //if (gate && rb.velocity != Vector2.zero)
-            //{
-            //    Move_Speed = human_data.Speed;
-            //    gate.Stop();
-            //    gate = null;
-            //    Player_Coding = false;
-            //}
             Move(inputMove);
         }
     }
     public void Move(Vector2 moveInput)
     {
+        if (PhotonNetwork.IsConnected && pv != null && !pv.IsMine)
+        {
+            return;
+        }
         inputMove = moveInput;
         if (CanControl)
         {
             if (moveInput.x > 0)
             {
-                sr.flipX = false;
+                SetFlipX(false);
             }
             else if (moveInput.x < 0)
             {
-                sr.flipX = true;
+                SetFlipX(true);
             }
         }
     }
@@ -234,6 +300,10 @@ public class Player :  MonoBehaviour, Istate_Human
     #region 交互
     public void Interact()
     {
+        if (PhotonNetwork.IsConnected && pv != null && !pv.IsMine)
+        {
+            return;
+        }
         Debug.Log("可以交互");
         if (!CanControl)
         {
@@ -308,6 +378,10 @@ public class Player :  MonoBehaviour, Istate_Human
     #region 破译
     public void Coding_Check()
     {
+        if (PhotonNetwork.IsConnected && pv != null && !pv.IsMine)
+        {
+            return;
+        }
         if (ciph&&ciph.Is_Calibration && ciph.Calibration_Slider.gameObject.activeSelf && rb.velocity != Vector2.zero)
         {
             ciph.Punish();
@@ -341,7 +415,10 @@ public class Player :  MonoBehaviour, Istate_Human
         {
             ciph.Has_Real_Player = false;
             Player_Coding = false;
-            am.SetBool("IsCoding", false);
+            if (pv.IsMine)
+            {
+                am.SetBool("IsCoding", false);
+            }
             //Mathf.Max(ciph.Coding_members --, 0);
             ciph.Coding_Guys.Remove(this);
         }
@@ -362,13 +439,20 @@ public class Player :  MonoBehaviour, Istate_Human
     #region 技能
     public void Skill()
     {
+        if (PhotonNetwork.IsConnected && pv != null && !pv.IsMine)
+        {
+            return;
+        }
         if (rb.velocity == Vector2.zero || Dash_Cooldown > 0)
         {
             return;
         }
         Player_UI.instance.Dash_Start();
         Is_Dashing = true;
-        am.SetBool("IsDashing", true);
+        if (pv.IsMine)
+        {
+            am.SetBool("IsDashing", true);
+        }
         rb.velocity = Last_Way * Dash_Force;
         rb.AddForce(rb.velocity, ForceMode2D.Impulse);
         Invoke(nameof(Dashing_Time), Dash_Duration);
@@ -377,7 +461,10 @@ public class Player :  MonoBehaviour, Istate_Human
     public void Dashing_Time()
     {
         Is_Dashing = false;
-        am.SetBool("IsDashing", false);
+        if (pv.IsMine)
+        {
+            am.SetBool("IsDashing", false);
+        }
         Dash_Cooldown = Dash_CD;
     }
     #endregion
@@ -391,6 +478,9 @@ public class Player :  MonoBehaviour, Istate_Human
         CurrentHp -= damage;
         Sound_Manager.instance.Play_sfx(Sound_Manager.instance.Hurt_Sound);
         Hurt_VFX = true;
+
+        SetSpriteColor(Color.red);
+
         if (CurrentHp > 0)
         {
             StartCoroutine(SpeedUp_When_Hurt());
@@ -402,6 +492,10 @@ public class Player :  MonoBehaviour, Istate_Human
     }
     public void Down()
     {
+        if (PhotonNetwork.IsConnected && pv != null && !pv.IsMine)
+        {
+            return;
+        }
         Player_Alive = false;
         capsuleCollider2D.enabled = false;
         rb.constraints = RigidbodyConstraints2D.FreezeAll;
@@ -417,18 +511,25 @@ public class Player :  MonoBehaviour, Istate_Human
         }
         gameObject.tag = "Player_NeedSave";
         gameObject.layer = LayerMask.NameToLayer("Player_Down");
-        am.SetBool("IsDown", true);
+        if (pv.IsMine)
+        {
+            am.SetBool("IsDown", true);
+        }
     }
     public IEnumerator SpeedUp_When_Hurt()
     {
         Move_Speed *= Hurt_Speed;
-        sr.color = Color.red;
         yield return new WaitForSeconds(Hurt_Time);
         Move_Speed = human_data.Speed;
-        sr.color = Color.white;
+
+        SetSpriteColor(Color.white);
     }
     public void Wait_For_Saving()
     {
+        if (PhotonNetwork.IsConnected && pv != null && !pv.IsMine)
+        {
+            return;
+        }
         sr.flipX = true;
         Dying_ForHelp_UI.gameObject.SetActive(true);
         if (!Be_Saving)
@@ -451,6 +552,10 @@ public class Player :  MonoBehaviour, Istate_Human
     }
     public void Saving_Check()
     {
+        if (PhotonNetwork.IsConnected && pv != null && !pv.IsMine)
+        {
+            return;
+        }
         if (gameObject && Be_Saving && rb.velocity != Vector2.zero)
         {
             //Saving = false;
@@ -460,6 +565,10 @@ public class Player :  MonoBehaviour, Istate_Human
     }
     public void Get_Aid()
     {
+        if (PhotonNetwork.IsConnected && pv != null && !pv.IsMine)
+        {
+            return;
+        }
         if (Saving_Slider.value == Saving_Slider.maxValue)
         {
             capsuleCollider2D.enabled = true;
@@ -478,8 +587,11 @@ public class Player :  MonoBehaviour, Istate_Human
             {
                 ciph = null;
             }
-            am.SetBool("IsBorn", true);
-            am.SetBool("IsDown", false);
+            if (pv.IsMine)
+            {
+                am.SetBool("IsBorn", true);
+                am.SetBool("IsDown", false);
+            }
         }
         Saving_Progress = Saving_Slider.value;
         Saving_Slider.gameObject.SetActive((IsDown && Be_Saving) ? true : false);
@@ -491,14 +603,28 @@ public class Player :  MonoBehaviour, Istate_Human
 
     public void Body_Disappear()
     {
-        Color dead_color = sr.color;
-        dead_color.a=Mathf.Lerp(sr.color.a, 0, Time.deltaTime * 3f);
-        Dying_ForHelp_UI.text = $"";
-        sr.color = dead_color;
-        Dead();
+        if (PhotonNetwork.IsConnected && pv != null && !pv.IsMine)
+        {
+            return;
+        }
+
+        float targetAlpha = 0f;
+        float newAlpha = Mathf.Lerp(sr.color.a, targetAlpha, Time.deltaTime * 3f);
+        SetDeathAlpha(newAlpha);
+
+        Dying_ForHelp_UI.text = "";
+
+        if (newAlpha <= 0.01f)
+        {
+            Dead();
+        }
     }
     public void Dead()
     {
+        if (PhotonNetwork.IsConnected && pv != null && !pv.IsMine)
+        {
+            return;
+        }
         if (sr.color.a <= 0.01 && !_hasCountDeath)
         {
             _hasCountDeath = true;
@@ -529,19 +655,30 @@ public class Player :  MonoBehaviour, Istate_Human
     {
         Debug.Log("有新生");
         New_Born = false;
-        am.SetBool("IsBorn", true);
+        if (pv.IsMine)
+        {
+            am.SetBool("IsBorn", true);
+        }
     }
     public void Wait_For_Born()
     {
-        am.SetBool("IsBorn", false);
+        if (pv.IsMine)
+        {
+            am.SetBool("IsBorn", false);
+        }
         CanControl = true;
         Player_Alive = true;
         gameObject.tag = "Player";
         gameObject.layer = LayerMask.NameToLayer("Player");
+        SetSpriteColor(Color.white);
     }
     #endregion
     public void Sound_Control_Human()
     {
+        if (PhotonNetwork.IsConnected && pv != null && !pv.IsMine)
+        {
+            return;
+        }
         if (Is_Dashing)
         {
             Sound_Manager.instance.Play_sfx(Sound_Manager.instance.Dash_Sound);

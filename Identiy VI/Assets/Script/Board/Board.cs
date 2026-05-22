@@ -2,6 +2,7 @@ using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 public enum Board_Style
 {
@@ -9,7 +10,7 @@ public enum Board_Style
     Down,
     Broken,
 }
-public class Board : MonoBehaviour
+public class Board : MonoBehaviourPunCallbacks
 {
     [Header("砸人半径")]
     [Range(0f, 10f)] public float Hit_Radius;
@@ -28,6 +29,8 @@ public class Board : MonoBehaviour
     public bool Ban;
     public float Frezzing_Duration;
     public float Frezzing_Count;
+    [Header("PUN2")]
+    public PhotonView pv;
     [Header("引用")]
     public SpriteRenderer sr;
     public BoxCollider2D col;
@@ -36,10 +39,14 @@ public class Board : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         col = GetComponent<BoxCollider2D>();
         sr.sprite = Original_Style;
-        Change_State(Board_Style.Normal);
+        pv = GetComponent<PhotonView>();
 
         Up_Location = new Vector2(transform.position.x, transform.position.y - 0.25f + away);
         Down_Loction = new Vector2(transform.position.x, transform.position.y - 0.25f - away);
+    }
+    public void Start()
+    {
+        Change_State(Board_Style.Normal);
     }
     public void Update()
     {
@@ -54,11 +61,32 @@ public class Board : MonoBehaviour
     }
     public void FixedUpdate()
     {
-        Change_State(Current_State);
+
+    }
+    [PunRPC]
+    public void RPC_UpdateState(int stateNum)
+    {
+        Current_State = (Board_Style)stateNum;
+        switch (Current_State)
+        {
+            case Board_Style.Normal:
+                Normal_Style();
+                break;
+            case Board_Style.Down:
+                Down_Style();
+                break;
+            case Board_Style.Broken:
+                Broken_Style();
+                break;
+        }
     }
     public void Change_State(Board_Style Now_State)
     {
         Current_State = Now_State;
+        if (pv != null && pv.IsMine)
+        {
+            pv.RPC("RPC_UpdateState", RpcTarget.AllBuffered, (int)Now_State);
+        }
         switch (Current_State)
         {
             case Board_Style.Normal:
@@ -96,6 +124,10 @@ public class Board : MonoBehaviour
     #region 交互
     public void Interact_Board_Player_Real(Player pl)
     {
+        if (pv != null && !pl.photonView.IsMine)
+        {
+            return;
+        }
         Butcher butcher;
         Butcher_AI butcher_ai;
         if (Current_State == Board_Style.Normal)
@@ -209,6 +241,10 @@ public class Board : MonoBehaviour
     }
     public void Interact_Board_Butcher_Real(Butcher b)
     {
+        if (pv != null && !b.photonView.IsMine)
+        {
+            return;
+        }
         b.board = this;
         if (Current_State == Board_Style.Down)
         {
@@ -241,21 +277,4 @@ public class Board : MonoBehaviour
         Gizmos.DrawSphere(Up_Location, 0.1f);
         Gizmos.DrawSphere(Down_Loction, 0.1f);
     }
-    //public void OnCollisionEnter2D(Collision2D collision)
-    //{
-    //    if (Current_State == Board_Style.Down)
-    //    {
-    //        if (collision.gameObject.CompareTag("Butcher") || collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Player_NeedSave"))
-    //        {
-    //            Physics2D.IgnoreCollision(col, collision.collider, false);
-    //        }
-    //    }
-    //    else
-    //    {
-    //        if (collision.gameObject.CompareTag("Butcher") || collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Player_NeedSave"))
-    //        {
-    //            Physics2D.IgnoreCollision(col, collision.collider, true);
-    //        }
-    //    }
-    //}
 }

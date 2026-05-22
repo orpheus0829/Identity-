@@ -42,11 +42,18 @@ public class Butcher_Show_State : Istate
 
     public void OnFixedUpdate()
     {
-        
+        if (rb_bt != null && rb_bt.pv != null && !rb_bt.pv.IsMine)
+        {
+            return;
+        }
     }
 
     public void OnUpdate()
     {
+        if (rb_bt != null && rb_bt.pv != null && !rb_bt.pv.IsMine)
+        {
+            return;
+        }
         if (ab_bt)
         {
             if (am.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f)

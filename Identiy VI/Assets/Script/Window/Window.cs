@@ -2,21 +2,30 @@ using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
-public class Window : MonoBehaviour
+public class Window : MonoBehaviourPunCallbacks
 {
+    [Header("贴图")]
     public List<Sprite> sprites;
-    public SpriteRenderer sr;
+    [Header("落点")]
     [Range(0f,20f)]public float away;
     public Vector2 Up_Location;
     public Vector2 Down_Loction;
+    [Header("冷却")]
     public bool _Using;
     public bool Ban;
     public float Frezzing_Duration;
     public float Frezzing_Count;
+    [Header("PUN2")]
+    public PhotonView pv;
+    [Header("引用")]
+    public SpriteRenderer sr;
     public void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
+        pv = GetComponent<PhotonView>();
+
         sr.sprite = sprites[Random.Range(0, sprites.Count - 1)];
         Up_Location = new Vector2(transform.position.x, transform.position.y + 0.5f + away);
         Down_Loction = new Vector2(transform.position.x, transform.position.y + 0.5f - away);
@@ -35,6 +44,10 @@ public class Window : MonoBehaviour
     #region 交互
     public void Interact_Window_Player_Real(Player p)
     {
+        if (pv != null && !p.photonView.IsMine)
+        {
+            return;
+        }
         p.Landing = p.transform.position.y < transform.position.y ? Up_Location : Down_Loction;
         p.capsuleCollider2D.enabled = false;
         p.CanControl = false;
@@ -79,6 +92,10 @@ public class Window : MonoBehaviour
     }
     public void Interact_Window_Butcher_Real(Butcher b)
     {
+        if (pv != null && !b.photonView.IsMine)
+        {
+            return;
+        }
         b.Landing_B = b.transform.position.y < transform.position.y ? Up_Location : Down_Loction;
         b.col.enabled = false;
         b.CanControl_B = false;

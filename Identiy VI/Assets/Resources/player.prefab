@@ -470,10 +470,10 @@ GameObject:
   - component: {fileID: 6098892252616080430}
   - component: {fileID: 1323422879791920917}
   - component: {fileID: 8486162289018874588}
-  - component: {fileID: -5911655063873255326}
-  - component: {fileID: 5909699486194027826}
+  - component: {fileID: 5190110259622738106}
+  - component: {fileID: 8648829720373094104}
   - component: {fileID: 6347256357087749728}
-  - component: {fileID: -5839388596227786712}
+  - component: {fileID: 145823666754008492}
   m_Layer: 6
   m_Name: player
   m_TagString: Player
@@ -653,13 +653,13 @@ MonoBehaviour:
   OwnershipTransfer: 1
   observableSearch: 2
   ObservedComponents:
-  - {fileID: -5911655063873255326}
-  - {fileID: 5909699486194027826}
-  - {fileID: -5839388596227786712}
+  - {fileID: 5190110259622738106}
+  - {fileID: 8648829720373094104}
+  - {fileID: 145823666754008492}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
---- !u!114 &-5911655063873255326
+--- !u!114 &5190110259622738106
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -675,7 +675,7 @@ MonoBehaviour:
   m_SynchronizeRotation: 1
   m_SynchronizeScale: 1
   m_UseLocal: 1
---- !u!114 &5909699486194027826
+--- !u!114 &8648829720373094104
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -759,7 +759,7 @@ MonoBehaviour:
   interact_List: {fileID: 0}
   Option: {fileID: 7637094903332385482}
   After_Die: {fileID: 0}
---- !u!114 &-5839388596227786712
+--- !u!114 &145823666754008492
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -781,7 +781,7 @@ MonoBehaviour:
     SynchronizeType: 0
     Name: IsCoding
   - Type: 4
-    SynchronizeType: 2
+    SynchronizeType: 1
     Name: IsDashing
   - Type: 4
     SynchronizeType: 2

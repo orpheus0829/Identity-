@@ -6,8 +6,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using Photon.Pun;
 
-public class Butcher : MonoBehaviour, Istate_Butcher
+public class Butcher : MonoBehaviourPunCallbacks, Istate_Butcher
 {
     public ButcherData butcher_data;
     [Header("“∆∂Ø")]
@@ -29,6 +30,7 @@ public class Butcher : MonoBehaviour, Istate_Butcher
     public float Attack_Distance_B;
     public float Attack_Stun_Time_B;
     public bool Is_Attack_B;
+    public bool isAttackingNow = false;
     [Header("—£‘Œ")]
     public float StunTime;
     public bool Is_Stun_B;
@@ -36,6 +38,8 @@ public class Butcher : MonoBehaviour, Istate_Butcher
     public float Speed_B;
     public float Act_SpeedCross_B;
     public float Act_SpeedBreakBoard_B;
+    [Header("PUN2")]
+    public PhotonView pv;
     [Header("“˝”√")]
     public LayerMask Player_Layer;
     public LineRenderer lr;
@@ -63,7 +67,9 @@ public class Butcher : MonoBehaviour, Istate_Butcher
         col = GetComponent<CapsuleCollider2D>();
         lr = GetComponent<LineRenderer>();
         interact_List_B = GetComponentInChildren<Interact_List_B>();
+        pv = GetComponent<PhotonView>();
         butcherInput.EnabaleButcherInput();
+
         act_B.Enable();
         name = butcher_data.top_name;
         Interact_Radius_B = butcher_data.Interact_Radius;
@@ -75,8 +81,18 @@ public class Butcher : MonoBehaviour, Istate_Butcher
         Attack_Distance_B = butcher_data.Attack_Distance;
         Attack_Stun_Time_B = butcher_data.Attack_Stun_Time;
 
-        After_Die = GameObject.FindGameObjectWithTag("After_Die");
-        After_Die.SetActive(false);
+        if (pv != null && !pv.IsMine)
+        {
+
+        }
+        else
+        {
+            After_Die = GameObject.FindGameObjectWithTag("After_Die");
+            if (After_Die != null)
+            {
+                After_Die.SetActive(false);
+            }
+        }
 
         state_B.Add(Butcher_State_Type.idle, new Butcher_Idle_State(this));
         state_B.Add(Butcher_State_Type.walk, new Butcher_Walk_State(this));
@@ -112,7 +128,10 @@ public class Butcher : MonoBehaviour, Istate_Butcher
     }
     public void Update()
     {
-        Current_State_B.OnUpdate();
+        if (Current_State_B != null)
+        {
+            Current_State_B.OnUpdate();
+        }
         interact_target = interact_List_B.Interact_Range_B.OrderBy(obj => Vector2.Distance(transform
             .position, obj.transform.position)).FirstOrDefault();
         Interact_Button.gameObject.SetActive(interact_List_B.Interact_Range_B.Count > 0 && !Crossing_B);
@@ -128,16 +147,43 @@ public class Butcher : MonoBehaviour, Istate_Butcher
     }
     public void FixedUpdate()
     {
-        Current_State_B.OnFixedUpdate();
+        bool isLocalControl = !PhotonNetwork.IsConnected || (pv != null && pv.IsMine);
+        if (isLocalControl && Current_State_B != null)
+        {
+            Current_State_B.OnFixedUpdate();
+        }
         rb.mass = CanControl_B ? 1 : 99999;
     }
+    #region SpriteRendererÕ¨≤Ω
+    public void SetFlipX(bool flip)
+    {
+        if (pv.IsMine)
+        {
+            sr.flipX = flip;
+            pv.RPC(nameof(RPC_SetFlipX), RpcTarget.Others, flip);
+        }
+    }
+    [PunRPC]
+    void RPC_SetFlipX(bool flip)
+    {
+        sr.flipX = flip;
+    }
+    #endregion
     #region “∆∂Ø
     public void Move()
     {
+        if (PhotonNetwork.IsConnected && pv != null && !pv.IsMine)
+        {
+            return;
+        }
         Move(inputMove_B);
     }
     public void Move(Vector2 moveInput)
     {
+        if (PhotonNetwork.IsConnected && pv != null && !pv.IsMine)
+        {
+            return;
+        }
         if (moveInput.magnitude > 0.01f)
         {
             lastMoveDir = moveInput.normalized;
@@ -148,11 +194,11 @@ public class Butcher : MonoBehaviour, Istate_Butcher
             Cursor.visible = false;
             if (moveInput.x > 0)
             {
-                sr.flipX = false;
+                SetFlipX(false);
             }
             else if (moveInput.x < 0)
             {
-                sr.flipX = true;
+                SetFlipX(true);
             }
         }
     }
@@ -160,6 +206,10 @@ public class Butcher : MonoBehaviour, Istate_Butcher
     #region Ωªª•
     public void Interact()
     {
+        if (PhotonNetwork.IsConnected && pv != null && !pv.IsMine)
+        {
+            return;
+        }
         if (!CanControl_B)
         {
             return;
@@ -187,6 +237,10 @@ public class Butcher : MonoBehaviour, Istate_Butcher
     }
     public void Interact_Check_B()
     {
+        if (PhotonNetwork.IsConnected && pv != null && !pv.IsMine)
+        {
+            return;
+        }
         if (interact_target.TryGetComponent(out Board b))
         {
             if (b.Current_State == Board_Style.Normal || b.Current_State == Board_Style.Broken)
@@ -199,6 +253,10 @@ public class Butcher : MonoBehaviour, Istate_Butcher
     #region ÀÈ∞Â
     public void Break_The_Board()
     {
+        if (PhotonNetwork.IsConnected && pv != null && !pv.IsMine)
+        {
+            return;
+        }
         if (board)
         {
             board.Change_State(Board_Style.Broken);
@@ -214,10 +272,36 @@ public class Butcher : MonoBehaviour, Istate_Butcher
     #region π•ª˜
     public void Attack()
     {
+        if (PhotonNetwork.IsConnected && pv != null && !pv.IsMine)
+        {
+            return;
+        }
+        if (isAttackingNow)
+        {
+            return;
+        }
+
+        isAttackingNow = true;
         am.SetTrigger("IsAttack");
         Is_Attack_B = true;
     }
     public void Butcher_Attack()
+    {
+        if (PhotonNetwork.IsConnected && pv != null && !pv.IsMine)
+        {
+            return;
+        }
+        if (PhotonNetwork.IsConnected)
+        {
+            pv.RPC(nameof(AttackCheck), RpcTarget.All);
+        }
+        else
+        {
+            AttackCheck();
+        }
+    }
+    [PunRPC]
+    public void AttackCheck()
     {
         if (!CanControl_B)
         {
@@ -252,8 +336,17 @@ public class Butcher : MonoBehaviour, Istate_Butcher
         }
         Is_Attack_B = false;
     }
+    public void AttackEnd()
+    {
+        isAttackingNow = false;
+        Is_Attack_B = false;
+    }
     public void Attack_Recovery()
     {
+        if (PhotonNetwork.IsConnected && pv != null && !pv.IsMine)
+        {
+            return;
+        }
         StartCoroutine(Attack_Recovery_Enumerator());
     }
     public IEnumerator Attack_Recovery_Enumerator()
@@ -265,31 +358,13 @@ public class Butcher : MonoBehaviour, Istate_Butcher
         Speed_B = butcher_data.Speed;
     }
     #endregion
-    #region ≤¡µ∂
-    //public void Show_Knife()
-    //{
-    //    if (collider_Human)
-    //    {
-    //        am.Play("Butcher_show");
-    //        StartCoroutine(Knife());
-    //    }
-    //    else
-    //    {
-    //        am.Play("Butcher_notshow");
-    //    }
-    //    collider_Human = null;
-    //    //Is_Attack_B = false;
-    //}
-    //public IEnumerator Knife()
-    //{
-    //    Speed_B /= 2;
-    //    yield return new WaitForSeconds(0.5f);
-    //    Speed_B = butcher_data.Speed;
-    //}
-    #endregion
     #region —£‘Œ
     public void When_Stun()
     {
+        if (PhotonNetwork.IsConnected && pv != null && !pv.IsMine)
+        {
+            return;
+        }
         Is_Stun_B = true;
     }
     #endregion

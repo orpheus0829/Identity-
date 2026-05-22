@@ -36,6 +36,10 @@ public class Human_Needhelp_State : Istate
 
     public void OnFixedUpdate()
     {
+        if (rp_pl != null && rp_pl.pv != null && !rp_pl.pv.IsMine)
+        {
+            return;
+        }
         if (ap_pl)
         {
             ap_pl.Saving_Check();
@@ -48,6 +52,10 @@ public class Human_Needhelp_State : Istate
 
     public void OnUpdate()
     {
+        if (rp_pl != null && rp_pl.pv != null && !rp_pl.pv.IsMine)
+        {
+            return;
+        }
         if (ap_pl)
         {
             ap_pl.Get_Aid();

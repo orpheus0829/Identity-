@@ -1,3 +1,4 @@
+using Photon.Pun;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -29,6 +30,14 @@ public class Player_UI : MonoBehaviour
     }
     public void Update()
     {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            return;
+        }
+        if (pl == null)
+        {
+            return;
+        }
         if (Is_CD && pl.Dash_Cooldown > 0)
         {
             Count_CD.gameObject.SetActive(true);

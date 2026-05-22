@@ -32,11 +32,18 @@ public class Human_Down_State : Istate
 
     public void OnFixedUpdate()
     {
-        
+        if (rp_pl != null && rp_pl.pv != null && !rp_pl.pv.IsMine)
+        {
+            return;
+        }
     }
 
     public void OnUpdate()
     {
+        if (rp_pl != null && rp_pl.pv != null && !rp_pl.pv.IsMine)
+        {
+            return;
+        }
         if (ap_pl)
         {
             ap_pl.Dying_Time = ap_pl.SelfSaving_Chance == 0 ? 0 : ap_pl.Dying_Time;

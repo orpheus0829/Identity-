@@ -58,16 +58,6 @@ public class Init_Role_Manager : MonoBehaviour
         {
             Prefab_Pool.Add(Prefab_Butcher_AI);
         }
-        //for(int i = 0; i < Spawn_Points.Count; i++)
-        //{
-        //    if (Has_Spawned[i] == false && Prefab_Pool.Count > 0)
-        //    {
-        //        int number = Random.Range(0, Prefab_Pool.Count - 1);
-        //        Instantiate(Prefab_Pool[number], Spawn_Points[i]);
-        //        Prefab_Pool.Remove(Prefab_Pool[number]);
-        //        Has_Spawned[i] = true;
-        //    }
-        //}
         while (Prefab_Pool.Count > 0)
         {
             bool found = false;

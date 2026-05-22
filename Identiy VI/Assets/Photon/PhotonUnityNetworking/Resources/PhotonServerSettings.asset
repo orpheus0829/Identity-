@@ -39,6 +39,15 @@ MonoBehaviour:
   - DestroySpaceship
   - Fire
   - RespawnSpaceship
+  - RPC_UpdateState
+  - Butcher_Attack
+  - PlayAttackAnim
+  - AttackCheck
+  - RPC_SetFlipX
+  - RPC_SetSpriteColor
+  - RPC_SyncAlpha
+  - RPC_SetAlpha
+  - RPC_PlayAttackAnim
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

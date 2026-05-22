@@ -32,6 +32,10 @@ public class Butcher_Walk_State : Istate
 
     public void OnFixedUpdate()
     {
+        if (rb_bt != null && rb_bt.pv != null && !rb_bt.pv.IsMine)
+        {
+            return;
+        }
         if (ab_bt)
         {
             if (Vector2.Distance(ab_bt.transform.position, ab_bt.Target_Human.transform.position) < ab_bt.Attack_Distance_B)
@@ -61,6 +65,10 @@ public class Butcher_Walk_State : Istate
 
     public void OnUpdate()
     {
+        if (rb_bt != null && rb_bt.pv != null && !rb_bt.pv.IsMine)
+        {
+            return;
+        }
         if (ab_bt)
         {
             if (ab_bt.pathPointList == null || ab_bt.currentIndex >= ab_bt.pathPointList.Count)

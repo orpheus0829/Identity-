@@ -32,6 +32,10 @@ public class Butcher_Attack_State : Istate
 
     public void OnFixedUpdate()
     {
+        if (rb_bt != null && rb_bt.pv != null && !rb_bt.pv.IsMine)
+        {
+            return;
+        }
         if (ab_bt)
         {
             ab_bt.Move();
@@ -52,6 +56,10 @@ public class Butcher_Attack_State : Istate
 
     public void OnUpdate()
     {
+        if (rb_bt != null && rb_bt.pv != null && !rb_bt.pv.IsMine)
+        {
+            return;
+        }
         if (ab_bt)
         {
             if (am.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f)

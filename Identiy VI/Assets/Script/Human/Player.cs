@@ -92,7 +92,7 @@ public class Player : MonoBehaviourPunCallbacks, Istate_Human
         pv = GetComponent<PhotonView>();
         playerInput.EnabaleHumanInput();
 
-        if (pv != null && !pv.IsMine)
+        if (!PhotonNetwork.IsConnected || (pv != null && pv.IsMine))
         {
 
         }
@@ -218,10 +218,13 @@ public class Player : MonoBehaviourPunCallbacks, Istate_Human
     #region SpriteRenderer同步
     public void SetFlipX(bool flip)
     {
-        if (pv.IsMine)
+        if (!PhotonNetwork.IsConnected || (pv != null && pv.IsMine))
         {
             sr.flipX = flip;
-            pv.RPC(nameof(RPC_SetFlipX), RpcTarget.Others, flip);
+            if (PhotonNetwork.IsConnected && pv != null)
+            {
+                pv.RPC(nameof(RPC_SetFlipX), RpcTarget.Others, flip);
+            }
         }
     }
     [PunRPC]
@@ -231,14 +234,13 @@ public class Player : MonoBehaviourPunCallbacks, Istate_Human
     }
     public void SetSpriteColor(Color color)
     {
-        if (pv.IsMine)
+        if (!PhotonNetwork.IsConnected || (pv != null && pv.IsMine))
         {
             sr.color = color;
-            pv.RPC(nameof(RPC_SetSpriteColor), RpcTarget.All, color.r, color.g, color.b, color.a);
-        }
-        else
-        {
-            return;
+            if (PhotonNetwork.IsConnected && pv != null)
+            {
+                pv.RPC(nameof(RPC_SetSpriteColor), RpcTarget.All, color.r, color.g, color.b, color.a);
+            }
         }
     }
     [PunRPC]
@@ -248,13 +250,19 @@ public class Player : MonoBehaviourPunCallbacks, Istate_Human
     }
     public void SetDeathAlpha(float alphaValue)
     {
-        if (!pv.IsMine) return;
+        if (!(!PhotonNetwork.IsConnected || (pv != null && pv.IsMine)))
+        {
+            return;
+        }
 
         Color c = sr.color;
         c.a = alphaValue;
         sr.color = c;
 
-        pv.RPC(nameof(RPC_SetAlpha), RpcTarget.All, alphaValue);
+        if (PhotonNetwork.IsConnected && pv != null)
+        {
+            pv.RPC(nameof(RPC_SetAlpha), RpcTarget.All, alphaValue);
+        }
     }
     [PunRPC]
     public void RPC_SetAlpha(float alpha)
@@ -415,7 +423,7 @@ public class Player : MonoBehaviourPunCallbacks, Istate_Human
         {
             ciph.Has_Real_Player = false;
             Player_Coding = false;
-            if (pv.IsMine)
+            if (!PhotonNetwork.IsConnected || (pv != null && pv.IsMine))
             {
                 am.SetBool("IsCoding", false);
             }
@@ -449,7 +457,7 @@ public class Player : MonoBehaviourPunCallbacks, Istate_Human
         }
         Player_UI.instance.Dash_Start();
         Is_Dashing = true;
-        if (pv.IsMine)
+        if (!PhotonNetwork.IsConnected || (pv != null && pv.IsMine))
         {
             am.SetBool("IsDashing", true);
         }
@@ -461,7 +469,7 @@ public class Player : MonoBehaviourPunCallbacks, Istate_Human
     public void Dashing_Time()
     {
         Is_Dashing = false;
-        if (pv.IsMine)
+        if (!PhotonNetwork.IsConnected || (pv != null && pv.IsMine))
         {
             am.SetBool("IsDashing", false);
         }
@@ -587,7 +595,7 @@ public class Player : MonoBehaviourPunCallbacks, Istate_Human
             {
                 ciph = null;
             }
-            if (pv.IsMine)
+            if (!PhotonNetwork.IsConnected || (pv != null && pv.IsMine))
             {
                 am.SetBool("IsBorn", true);
                 am.SetBool("IsDown", false);
@@ -629,7 +637,23 @@ public class Player : MonoBehaviourPunCallbacks, Istate_Human
         {
             _hasCountDeath = true;
             act.Disable();
-            Victory_Manager.instance.Dead();
+            if (!PhotonNetwork.IsConnected)
+            {
+                Victory_Manager.instance.Dead();
+            }
+
+            if (PhotonNetwork.IsConnected && PhotonNetwork.InRoom && SelfSaving_Chance <= 0 && !PhotonNetwork.IsMasterClient)
+            {
+                Butcher butcher = FindObjectOfType<Butcher>();
+                if (butcher != null)
+                {
+                    butcher.HaveWin = true;
+                }
+
+                SceneManager.LoadScene(0);
+                return;
+            }
+
             Destroy(gameObject);
             Debug.Log("死后观战");
             GameObject vCamera = GameObject.FindGameObjectWithTag("Cinemachine_Camera");
@@ -662,7 +686,7 @@ public class Player : MonoBehaviourPunCallbacks, Istate_Human
     }
     public void Wait_For_Born()
     {
-        if (pv.IsMine)
+        if (!PhotonNetwork.IsConnected || (pv != null && pv.IsMine))
         {
             am.SetBool("IsBorn", false);
         }

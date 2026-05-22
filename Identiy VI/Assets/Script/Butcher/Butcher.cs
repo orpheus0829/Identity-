@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using Photon.Pun;
+using UnityEngine.SceneManagement;
 
 public class Butcher : MonoBehaviourPunCallbacks, Istate_Butcher
 {
@@ -40,6 +41,8 @@ public class Butcher : MonoBehaviourPunCallbacks, Istate_Butcher
     public float Act_SpeedBreakBoard_B;
     [Header("PUN2")]
     public PhotonView pv;
+    public bool HaveWin = false;
+    public Coroutine winCheck;
     [Header("引用")]
     public LayerMask Player_Layer;
     public LineRenderer lr;
@@ -81,7 +84,7 @@ public class Butcher : MonoBehaviourPunCallbacks, Istate_Butcher
         Attack_Distance_B = butcher_data.Attack_Distance;
         Attack_Stun_Time_B = butcher_data.Attack_Stun_Time;
 
-        if (pv != null && !pv.IsMine)
+        if (PhotonNetwork.IsConnected && pv != null && !pv.IsMine)
         {
 
         }
@@ -144,6 +147,7 @@ public class Butcher : MonoBehaviourPunCallbacks, Istate_Butcher
         {
             Interact_Check_B();
         }
+        CheckWinAndBackToLobby();
     }
     public void FixedUpdate()
     {
@@ -157,16 +161,26 @@ public class Butcher : MonoBehaviourPunCallbacks, Istate_Butcher
     #region SpriteRenderer同步
     public void SetFlipX(bool flip)
     {
-        if (pv.IsMine)
+        if (!PhotonNetwork.IsConnected || (pv != null && pv.IsMine))
         {
             sr.flipX = flip;
-            pv.RPC(nameof(RPC_SetFlipX), RpcTarget.Others, flip);
+            if (PhotonNetwork.IsConnected && pv != null)
+            {
+                pv.RPC(nameof(RPC_SetFlipX), RpcTarget.Others, flip);
+            }
         }
     }
     [PunRPC]
     void RPC_SetFlipX(bool flip)
     {
         sr.flipX = flip;
+    }
+    public void CheckWinAndBackToLobby()
+    {
+        if (PhotonNetwork.IsConnected && PhotonNetwork.InRoom && PhotonNetwork.IsMasterClient && HaveWin)
+        {
+            SceneManager.LoadScene(0);
+        }
     }
     #endregion
     #region 移动
@@ -282,6 +296,7 @@ public class Butcher : MonoBehaviourPunCallbacks, Istate_Butcher
         }
 
         isAttackingNow = true;
+        Transition_State_B(Butcher_State_Type.attack);
         am.SetTrigger("IsAttack");
         Is_Attack_B = true;
     }
@@ -340,6 +355,18 @@ public class Butcher : MonoBehaviourPunCallbacks, Istate_Butcher
     {
         isAttackingNow = false;
         Is_Attack_B = false;
+
+        if (PhotonNetwork.IsMasterClient && winCheck == null)
+        {
+            winCheck = StartCoroutine(Check());
+        }
+    }
+    public IEnumerator Check()
+    {
+        yield return new WaitForSeconds(3);
+        if (GameObject.FindGameObjectWithTag("Player") == null)
+            SceneManager.LoadScene(0);
+        winCheck = null;
     }
     public void Attack_Recovery()
     {

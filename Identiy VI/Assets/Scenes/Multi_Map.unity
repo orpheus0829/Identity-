@@ -179,10 +179,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: xxx Win
+  m_text: "\u8FFD\u9010\u7ED3\u675F"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 65ad3892aea3fe247b1cf6e7774d4174, type: 2}
-  m_sharedMaterial: {fileID: -8420354019359305537, guid: 65ad3892aea3fe247b1cf6e7774d4174,
+  m_fontAsset: {fileID: 11400000, guid: 05bd1983923bb8141953d00fe953a316, type: 2}
+  m_sharedMaterial: {fileID: -5922986254790460064, guid: 05bd1983923bb8141953d00fe953a316,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -103419,6 +103419,7 @@ MonoBehaviour:
   myCharacter: {fileID: 0}
   v: {fileID: 0}
   Spawn_Num: 0
+  Res: {fileID: 372202112}
 --- !u!1 &1905674913
 GameObject:
   m_ObjectHideFlags: 0

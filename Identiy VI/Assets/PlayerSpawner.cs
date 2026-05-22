@@ -1,11 +1,15 @@
 using Cinemachine;
 using Photon.Pun;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [DefaultExecutionOrder(-999)]
 public class PlayerSpawner : MonoBehaviourPunCallbacks
 {
+    public static PlayerSpawner instance { private set; get; }
+
     public GameObject humanPrefab;
     public GameObject butcherPrefab;
     public List<Transform> Spawns;
@@ -15,10 +19,27 @@ public class PlayerSpawner : MonoBehaviourPunCallbacks
 
     public int Spawn_Num = 0;
 
+
     public void Awake()
     {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
         GameObject camera_v = GameObject.FindGameObjectWithTag("Cinemachine_Camera");
-        v = camera_v.GetComponent<CinemachineVirtualCamera>();
+        if (camera_v != null)
+        {
+            v = camera_v.GetComponent<CinemachineVirtualCamera>();
+        }
+        else
+        {
+            Debug.Log("找不到相机");
+            v = null;
+        }
         GameObject[] point = GameObject.FindGameObjectsWithTag("Spawn_Point");
         foreach (var i in point)
         {
@@ -48,12 +69,23 @@ public class PlayerSpawner : MonoBehaviourPunCallbacks
         {
             myCharacter = PhotonNetwork.Instantiate(humanPrefab.name, Spawns[Spawn_Num].position, Quaternion.identity);
         }
-        v.Follow = myCharacter.transform;
+        if (v != null && myCharacter != null)
+        {
+            v.Follow = myCharacter.transform;
+        }
     }
     public void Update()
     {
-        if (v == null)
+        if (v == null || myCharacter == null)
         {
+            if (myCharacter == null)
+            {
+                if (PhotonNetwork.InRoom)
+                {
+                    PhotonNetwork.LeaveRoom();
+                }
+                SceneManager.LoadScene(0);
+            }
             return;
         }
         if (v.Follow == null)

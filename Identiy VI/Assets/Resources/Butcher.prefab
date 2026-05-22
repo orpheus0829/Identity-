@@ -447,6 +447,7 @@ MonoBehaviour:
   Act_SpeedCross_B: 0
   Act_SpeedBreakBoard_B: 0
   pv: {fileID: 0}
+  HaveWin: 0
   Player_Layer:
     serializedVersion: 2
     m_Bits: 64

@@ -1,3 +1,4 @@
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -32,9 +33,12 @@ public class Butcher_Attack_State : Istate
 
     public void OnFixedUpdate()
     {
-        if (rb_bt != null && rb_bt.pv != null && !rb_bt.pv.IsMine)
+        if (rb_bt != null)
         {
-            return;
+            if (PhotonNetwork.IsConnected && rb_bt.pv != null && !rb_bt.pv.IsMine)
+            {
+                return;
+            }
         }
         if (ab_bt)
         {
@@ -56,9 +60,12 @@ public class Butcher_Attack_State : Istate
 
     public void OnUpdate()
     {
-        if (rb_bt != null && rb_bt.pv != null && !rb_bt.pv.IsMine)
+        if (rb_bt != null)
         {
-            return;
+            if (PhotonNetwork.IsConnected && rb_bt.pv != null && !rb_bt.pv.IsMine)
+            {
+                return;
+            }
         }
         if (ab_bt)
         {

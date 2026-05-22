@@ -1,3 +1,4 @@
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -38,11 +39,11 @@ public class Human_Idle_State : Istate
 
     public void OnFixedUpdate()
     {
-        if (rp_pl != null && rp_pl.pv != null && !rp_pl.pv.IsMine)
+        if (rp_pl != null)
         {
-            return;
+            if (PhotonNetwork.IsConnected && rp_pl.pv != null && !rp_pl.pv.IsMine) return;
         }
-            if (ap_pl)
+        if (ap_pl)
         {
             if (ap_pl.Target_Cipher && Vector2.Distance(ap_pl.transform.position, ap_pl.Target_Cipher.transform.position) < ap_pl.InteractRadius)
             {
@@ -53,9 +54,9 @@ public class Human_Idle_State : Istate
 
     public void OnUpdate()
     {
-        if (rp_pl != null && rp_pl.pv != null && !rp_pl.pv.IsMine)
+        if (rp_pl != null)
         {
-            return;
+            if (PhotonNetwork.IsConnected && rp_pl.pv != null && !rp_pl.pv.IsMine) return;
         }
         if (rp_pl)
         {

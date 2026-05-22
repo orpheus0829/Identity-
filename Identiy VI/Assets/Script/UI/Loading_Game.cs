@@ -30,16 +30,6 @@ public class Loading_Game : MonoBehaviour
         Gap_2 = Random.Range(Gap_1, 100);
         Is_Start = false;
     }
-    //public void Start_Loading()
-    //{
-    //    StartCoroutine(Loading());
-    //}
-    //public IEnumerator Loading()
-    //{
-    //    Loading_Slider.value += Time.deltaTime * Loading_Speed;
-    //    Loading_Speed = (Loading_Slider.value < Gap_2 && Loading_Slider.value > Gap_1) ? 0.5f : 1f;
-    //    yield return null;
-    //}
     public void Update()
     {
         if (Is_Start)

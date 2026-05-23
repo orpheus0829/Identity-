@@ -40,7 +40,7 @@ public class Butcher_Walk_State : Istate
         }
         if (ab_bt)
         {
-            if (Vector2.Distance(ab_bt.transform.position, ab_bt.Target_Human.transform.position) < ab_bt.Attack_Distance_B)
+            if (ab_bt.Target_Human && Vector2.Distance(ab_bt.transform.position, ab_bt.Target_Human.transform.position) < ab_bt.Attack_Distance_B)
             {
                 Vector2 dir = ab_bt.Target_Human.transform.position - ab_bt.transform.position;
                 RaycastHit2D hit = Physics2D.Raycast(ab_bt.transform.position, dir.normalized, Vector2.Distance(ab_bt.transform.position, ab_bt.Target_Human.transform.position), ab_bt.Wall_Layer);

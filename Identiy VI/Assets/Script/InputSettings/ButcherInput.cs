@@ -21,6 +21,14 @@ public class ButcherInput : ScriptableObject, InputActions.IButcherActions
         inputact_B = new InputActions();
         inputact_B.Butcher.SetCallbacks(this);
     }
+    public void OnDisable()
+    {
+        if (inputact_B != null)
+        {
+            inputact_B.Butcher.Disable();
+            inputact_B.Disable();
+        }
+    }
     public void SwitchActionMap(InputActionMap actionMap)
     {
         inputact_B.Disable();

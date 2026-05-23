@@ -29,7 +29,10 @@ public class RoomWaitManager : MonoBehaviourPunCallbacks
     public void Start()
     {
         PhotonNetwork.AutomaticallySyncScene = true;
-        PhotonNetwork.ConnectUsingSettings();
+        if (!PhotonNetwork.IsConnected)
+        {
+            PhotonNetwork.ConnectUsingSettings();
+        }
 
         RefreshPlayerList();
         CheckStartBtnCondition();

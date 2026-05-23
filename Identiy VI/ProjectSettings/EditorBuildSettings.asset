@@ -23,4 +23,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Multi_Map.unity
     guid: f401aa3adfd5e394a9a8f5d563aadfcf
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: be0951c098514724ea841943b12b60ef,
+      type: 3}

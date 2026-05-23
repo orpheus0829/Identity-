@@ -8,6 +8,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 public class Player_AI : MonoBehaviour, Istate_Human
 {
@@ -64,6 +65,7 @@ public class Player_AI : MonoBehaviour, Istate_Human
     public bool Player_Coding;
     //public bool Saving;
     public bool Crossing;
+    public string cur_scene;
     [Header("¼¼ÄÜ")]
     public float Dash_Force;
     public bool Is_Dashing;
@@ -133,6 +135,8 @@ public class Player_AI : MonoBehaviour, Istate_Human
         Transition_State(Player_State_Type.idle);
         Last_Cipher_Scan();
         Init_Gate_And_Exit();
+
+        cur_scene = SceneManager.GetActiveScene().name;
     }
     public void Transition_State(Player_State_Type type)
     {
@@ -157,16 +161,19 @@ public class Player_AI : MonoBehaviour, Istate_Human
         {
             Current_State.OnUpdate();
         }
-        Player_HUD_Manager.instance.Update_Player_HP(this.gameObject, CurrentHp, MaxHp);
         Butcher_Scan();
         Last_Cipher_Scan();
-        if (Cipher_List.Count <= 0 )
+        if(cur_scene== "¡°The Red Church¡±")
         {
-            Target_Cipher = gate.Finish ? exit.transform : gate.transform;
-        }
-        if (!Chasing && Cipher_List.Count > 0 && Target_Cipher == null)
-        {
-            GetCipherTransform(0);
+            Player_HUD_Manager.instance.Update_Player_HP(this.gameObject, CurrentHp, MaxHp);
+            if (Cipher_List.Count <= 0)
+            {
+                Target_Cipher = gate.Finish ? exit.transform : gate.transform;
+            }
+            if (!Chasing && Cipher_List.Count > 0 && Target_Cipher == null)
+            {
+                GetCipherTransform(0);
+            }
         }
         AutoPath();
         CurrentHp = CurrentHp > MaxHp ? MaxHp : CurrentHp;
@@ -208,12 +215,6 @@ public class Player_AI : MonoBehaviour, Istate_Human
         if (CanControl && !Is_Dashing || Chasing)
         {
             Player_Coding = false;
-            //if (gate)
-            //{
-            //    Move_Speed = human_data.Speed;
-            //    CanControl = true;
-            //    gate.Stop();
-            //}
             if (pathPointList == null || currentIndex >= pathPointList.Count)
             {
                 inputMove = Vector2.zero;
@@ -273,23 +274,6 @@ public class Player_AI : MonoBehaviour, Istate_Human
             }
             pathGenerateTimer = 0;
         }
-        //if (!Chasing && Cipher_List.Count > 0)
-        //{
-        //    if (pathGenerateTimer < pathGenerateInterval)
-        //        return;
-
-        //    if (Target_Cipher != null)
-        //    {
-        //        GeneratePath(Target_Cipher.position);
-        //    }
-
-        //    if (pathPointList != null && currentIndex >= pathPointList.Count)
-        //    {
-        //        pathPointList = null;
-        //        currentIndex = 0;
-        //    }
-        //    pathGenerateTimer = 0;
-        //}
     }
     private Transform GetSafeEscapePoint()
     {
@@ -370,13 +354,6 @@ public class Player_AI : MonoBehaviour, Istate_Human
         {
             return;
         }
-        //if (gameObject.tag == "Player_NeedSave")
-        //{
-        //    if (SelfSaving_Chance > 0 && !Chasing)
-        //    {
-        //        Be_Saving = true;
-        //    }
-        //}
         if (!interact_List || interact_List.Interact_Range.Count <= 0)
         {
             return;
@@ -394,130 +371,18 @@ public class Player_AI : MonoBehaviour, Istate_Human
                 return;
             }
             cipher.Interact_Cipher_Player_AI(this);
-            //if (cipher.Done || cipher.Coding_Guys.Contains(this))
-            //{
-            //    return;
-            //}
-            //ciph = cipher;
-            //CanControl = false;
-            //Vector2 Cipher_position = interact_target.transform.position;
-            //Vector2 OfCipher = (transform.position - interact_target.transform.position).normalized;
-            //transform.position = Cipher_position + OfCipher * cipher.Cipher_away_radius * 1.3f;
-            //Coding_Enter();
-            //cipher.is_coding = true;
-            //if (cipher.transform.position.x >= transform.position.x)
-            //{
-            //    sr.flipX = false;
-            //}
-            //else
-            //{
-            //    sr.flipX = true;
-            //}
         }
         else if (interact_target.TryGetComponent(out Window window))
         {
             window.Interact_Window_Player_AI(this);
-            //window = interact_target.GetComponent<Window>();
-            //if (window.Ban)
-            //{
-            //    return;
-            //}
-            //Landing = transform.position.y < window.transform.position.y ? window.Up_Location : window.Down_Loction;
-            //capsuleCollider2D.enabled = false;
-            //CanControl = false;
-            //Move_Speed = 0;
-            //rb.mass = 9999;
-            //Crossing = true;
-            //transform.DOMove(Landing, 0.5f).OnComplete(() =>
-            //{
-            //    Crossing = false;
-            //    CanControl = true;
-            //    rb.velocity = Vector2.zero;
-            //    capsuleCollider2D.enabled = true;
-            //    Move_Speed = human_data.Speed;
-            //    rb.mass = 1;
-            //});
-            //window.Ban = true;
-            //window.Frezzing_Count = window.Frezzing_Duration;
-            //window = null;
-            //return;
         }
         else if (interact_target.TryGetComponent(out Board board))
         {
             board.Interact_Board_Player_AI(this);
-            //if (board.Ban)
-            //{
-            //    return;
-            //}
-            //Butcher butcher;
-            //Butcher_AI butcher_ai;
-            //if (board.Current_State == Board_Style.Normal)
-            //{
-            //    board.Change_State(Board_Style.Down);
-            //    StartCoroutine(nameof(Drop_Frezze));
-            //    Collider2D[] Collider_Hit = Physics2D.OverlapCircleAll(board.transform.position, board.Hit_Radius);
-            //    foreach (var colliderhit in Collider_Hit)
-            //    {
-            //        if (colliderhit.gameObject == this.gameObject)
-            //        {
-            //            continue;
-            //        }
-            //        if (colliderhit && colliderhit.tag == "Butcher")
-            //        {
-            //            butcher = colliderhit.GetComponent<Butcher>();
-            //            butcher.transform.position += butcher.transform.position.y > board.transform.position.y ? new Vector3(0, 1, 0) : new Vector3(0, -1, 0);
-            //            butcher.When_Stun();
-            //            break;
-            //        }
-            //        if (colliderhit && colliderhit.tag == "Butcher_Bot")
-            //        {
-            //            butcher_ai = colliderhit.GetComponent<Butcher_AI>();
-            //            butcher_ai.transform.position += butcher_ai.transform.position.y > board.transform.position.y ? new Vector3(0, 1, 0) : new Vector3(0, -1, 0);
-            //            butcher_ai.When_Stun();
-            //            break;
-            //        }
-            //    }
-            //    return;
-            //}
-            //if (board.Current_State == Board_Style.Down)
-            //{
-            //    Landing = transform.position.y < board.transform.position.y ? board.Up_Location : board.Down_Loction;
-            //    capsuleCollider2D.enabled = false;
-            //    CanControl = false;
-            //    Move_Speed = 0;
-            //    Crossing = true;
-            //    rb.velocity = Vector2.zero;
-            //    rb.simulated = false;
-            //    pathPointList = null;
-            //    currentIndex = 0;
-            //    transform.DOMove(Landing, 0.5f).OnComplete(() =>
-            //    {
-            //        Crossing = false;
-            //        CanControl = true;
-            //        rb.simulated = true;
-            //        rb.velocity = Vector2.zero;
-            //        capsuleCollider2D.enabled = true;
-            //        Move_Speed = human_data.Speed;
-            //        rb.mass = 1;
-            //        board.Ban = true;
-            //        board.Frezzing_Count = board.Frezzing_Duration;
-            //    });
-            //    return;
-            //}
         }
         else if (interact_target.TryGetComponent(out Gate_Controller gate))
         {
             gate.Interact_Gate_Player_AI(this);
-            //if (Player_Coding)
-            //{
-            //    return;
-            //}
-            //Player_Coding = true;
-            //Move_Speed = 0;
-            //CanControl = false;
-            //rb.velocity = Vector2.zero;
-            //gate.Open();
-            //return;
         }
     }
     public IEnumerator Drop_Frezze()
@@ -663,8 +528,11 @@ public class Player_AI : MonoBehaviour, Istate_Human
             return;
         }
         CurrentHp -= damage;
-        Sound_Manager.instance.Play_sfx(Sound_Manager.instance.Hurt_Sound);
-        Hurt_VFX = true;
+        if(cur_scene== "¡°The Red Church¡±")
+        {
+            Sound_Manager.instance.Play_sfx(Sound_Manager.instance.Hurt_Sound);
+            Hurt_VFX = true;
+        }
         if (CurrentHp > 0)
         {
             StartCoroutine(SpeedUp_When_Hurt());

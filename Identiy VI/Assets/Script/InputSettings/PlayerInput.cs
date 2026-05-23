@@ -23,6 +23,14 @@ public class PlayerInput : ScriptableObject,InputActions.IHumanActions
         inputact = new InputActions();
         inputact.Human.SetCallbacks(this);
     }
+    public void OnDisable()
+    {
+        if (inputact != null)
+        {
+            inputact.Human.Disable();
+            inputact.Disable();
+        }
+    }
     public void SwitchActionMap(InputActionMap actionMap)
     {
         if (inputact == null)

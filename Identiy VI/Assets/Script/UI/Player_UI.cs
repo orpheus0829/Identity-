@@ -25,6 +25,10 @@ public class Player_UI : MonoBehaviour
             Destroy(gameObject);
 
         }
+        if(PhotonNetwork.IsConnected&& PhotonNetwork.IsMasterClient)
+        {
+            this.gameObject.SetActive(false);
+        }
         Skill_Reset();
         Is_CD = false;
     }

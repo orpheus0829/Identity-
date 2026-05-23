@@ -1,5 +1,6 @@
 using Cinemachine;
 using Photon.Pun;
+using Photon.Realtime;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -76,6 +77,11 @@ public class PlayerSpawner : MonoBehaviourPunCallbacks
     }
     public void Update()
     {
+        PhotonNetwork.NetworkingClient.Service();
+        if (PhotonNetwork.NetworkingClient.State == ClientState.Disconnected)
+        {
+            return;
+        }
         if (v == null || myCharacter == null)
         {
             if (myCharacter == null)

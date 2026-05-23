@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class Butcher_AI : MonoBehaviour, Istate_Butcher
 {
@@ -29,6 +30,8 @@ public class Butcher_AI : MonoBehaviour, Istate_Butcher
     public Vector3 Landing_B;
     public bool Crossing_B;
     public bool breaking;
+
+    public string cur_scene;
     [Header("ÉËº¦")]
     public Vector2 lastMoveDir = Vector2.right;
     public float Damage_B;
@@ -82,6 +85,12 @@ public class Butcher_AI : MonoBehaviour, Istate_Butcher
         state_B.Add(Butcher_State_Type.stun, new Butcher_Stun_State(this));
         Transition_State_B(Butcher_State_Type.idle);
         Interact();
+
+        cur_scene = SceneManager.GetActiveScene().name;
+        if(cur_scene== "Start Hall")
+        {
+            Damage_B = 0;
+        }
     }
     public void Transition_State_B(Butcher_State_Type type)
     {
@@ -221,14 +230,20 @@ public class Butcher_AI : MonoBehaviour, Istate_Butcher
         if (interact_target.TryGetComponent(out Board board))
         {
             board.Interact_Board_Butcher_AI(this);
-            Sound_Manager.instance.Play_sfx(Sound_Manager.instance.Breaking_Sound);
-            Sound_Manager.instance.Play_sfx(Sound_Manager.instance.Breaking_Sound);
-            Sound_Manager.instance.Play_sfx(Sound_Manager.instance.Breaking_Sound);
+            if(cur_scene== "¡°The Red Church¡±")
+            {
+                Sound_Manager.instance.Play_sfx(Sound_Manager.instance.Breaking_Sound);
+                Sound_Manager.instance.Play_sfx(Sound_Manager.instance.Breaking_Sound);
+                Sound_Manager.instance.Play_sfx(Sound_Manager.instance.Breaking_Sound);
+            }
         }
         else if (interact_target.TryGetComponent(out Window window))
         {
             window.Interact_Window_Butcher_AI(this);
-            Sound_Manager.instance.Play_sfx(Sound_Manager.instance.Crossing_Sound);
+            if(cur_scene== "The Red Church¡±")
+            {
+                Sound_Manager.instance.Play_sfx(Sound_Manager.instance.Crossing_Sound);
+            }
         }
     }
     #endregion
@@ -259,7 +274,10 @@ public class Butcher_AI : MonoBehaviour, Istate_Butcher
         {
             return;
         }
-        Sound_Manager.instance.Play_sfx(Sound_Manager.instance.Attack_Sound);
+        if (cur_scene == "The Red Church¡±")
+        {
+            Sound_Manager.instance.Play_sfx(Sound_Manager.instance.Attack_Sound);
+        }
         Vector2 dir = inputMove_B.magnitude > 0.01f ? inputMove_B.normalized : lastMoveDir;
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         Vector2 center = (Vector2)transform.position + dir * (Attack_Distance_B * 0.5f);
@@ -292,6 +310,10 @@ public class Butcher_AI : MonoBehaviour, Istate_Butcher
     {
         StartCoroutine(Attack_Recovery_Enumerator());
     }
+    public void AttackEnd()
+    {
+
+    }
     public IEnumerator Attack_Recovery_Enumerator()
     {
         CanControl_B = false;
@@ -310,14 +332,14 @@ public class Butcher_AI : MonoBehaviour, Istate_Butcher
         Is_Stun_B = true;
     }
     #endregion
-    public void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.red;
-        Vector2 dir = inputMove_B.magnitude > 0.01f ? inputMove_B.normalized : (sr.flipX ? Vector2.left : Vector2.right);
-        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-        Vector2 center = (Vector2)transform.position + dir * (Attack_Distance_B * 0.5f);
-        Vector2 size = new Vector2(Attack_Distance_B, col.size.y / 2.5f);
-        Gizmos.matrix = Matrix4x4.TRS(center, Quaternion.Euler(0, 0, angle), Vector3.one);
-        Gizmos.DrawWireCube(Vector3.zero, size);
-    }
+    //public void OnDrawGizmosSelected()
+    //{
+    //    Gizmos.color = Color.red;
+    //    Vector2 dir = inputMove_B.magnitude > 0.01f ? inputMove_B.normalized : (sr.flipX ? Vector2.left : Vector2.right);
+    //    float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+    //    Vector2 center = (Vector2)transform.position + dir * (Attack_Distance_B * 0.5f);
+    //    Vector2 size = new Vector2(Attack_Distance_B, col.size.y / 2.5f);
+    //    Gizmos.matrix = Matrix4x4.TRS(center, Quaternion.Euler(0, 0, angle), Vector3.one);
+    //    Gizmos.DrawWireCube(Vector3.zero, size);
+    //}
 }

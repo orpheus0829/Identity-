@@ -233,6 +233,7 @@ public class Board : MonoBehaviourPunCallbacks
                 ai.capsuleCollider2D.enabled = true;
                 ai.Move_Speed = ai.human_data.Speed;
                 ai.rb.mass = 1;
+
                 Ban = true;
                 Frezzing_Count = Frezzing_Duration;
             });

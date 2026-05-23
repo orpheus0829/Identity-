@@ -34,7 +34,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.5, y: -0.70000076}
+  m_AnchoredPosition: {x: 0.5, y: -0.7000122}
   m_SizeDelta: {x: 50, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2736654300944582017
@@ -67,8 +67,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u623F\u95F4\u540D"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 05bd1983923bb8141953d00fe953a316, type: 2}
-  m_sharedMaterial: {fileID: -5922986254790460064, guid: 05bd1983923bb8141953d00fe953a316,
+  m_fontAsset: {fileID: 11400000, guid: aef16d0166390014eb3b30e732c28b10, type: 2}
+  m_sharedMaterial: {fileID: -3597794389350298123, guid: aef16d0166390014eb3b30e732c28b10,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -202,8 +202,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: -662024352, guid: ad45ce2b9695a22488852e9d3307afdb, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
